@@ -1,0 +1,54 @@
+import React from "react";
+import { useOktaAuth } from "@okta/okta-react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { Security, LoginCallback, SecureRoute } from "@okta/okta-react";
+import { OktaAuth } from "@okta/okta-auth-js";
+
+import Login from "./Login";
+import User from "./User";
+
+const CALLBACK_PATH = "/login/callback";
+const restoreOriginalUri = "/";
+
+const config = {
+  clientId: "0oaocit1p3UIBtJ9i5d6",
+  issuer: "https://dev-30902978.okta.com/oauth2/default",
+  redirectUri: "http://localhost:3000/login/callback",
+  // scopes: ["openid", "profile", "email"],
+  // pkce: true,
+};
+
+const oktaAuth = new OktaAuth(config);
+
+function App() {
+  const authState = useOktaAuth();
+  const oktaAuth_H = useOktaAuth();
+  const login = (e) => {
+    e.preventDefault();
+    oktaAuth_H.signInWithRedirect({ originalUri: "/login/callback" });
+  };
+
+  console.log(useOktaAuth(), authState);
+
+  // if (authState.isPending) {
+  //   return <div>Loading authentication...</div>;
+  // } else if (!authState.isAuthenticated) {
+  return (
+    <Router>
+      <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
+        <Switch>
+          <Route path={CALLBACK_PATH} component={LoginCallback} />
+          <Route path="/">
+            <Login login={login} />
+          </Route>
+          <SecureRoute path="/user">
+            <User />
+          </SecureRoute>
+        </Switch>
+      </Security>
+    </Router>
+  );
+}
+// }
+
+export default App;
